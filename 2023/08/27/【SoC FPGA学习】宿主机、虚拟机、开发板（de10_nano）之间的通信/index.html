@@ -192,7 +192,7 @@
 <ul>
 <li>宿主机：win11</li>
 <li>虚拟机：ubuntu16.04</li>
-<li>开发板：</li>
+<li>开发板：Poky 8.0</li>
 </ul>
 </li>
 <li>
@@ -260,7 +260,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ifconfig eth0 192.168.199.102</span><br><span class="line">ifconfig ens0 netmask 255.255.0.0</span><br></pre></td></tr></table></figure>
 <h4 id="⑦-验收">⑦ 验收</h4>
 <p>打开windows终端，输入<code>ipconfig</code>命令查看以太网网卡的ip（应为192.168.199.104），随后输入以下命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ping www.baidu.com		<span class="comment"># ping通代表主机主机能上网</span></span><br><span class="line">ping 192.168.138.129	<span class="comment"># ping通代表主机和虚拟机可以通过NAT网络通信</span></span><br><span class="line">ping 192.168.199.103	<span class="comment"># ping通代表主机和虚拟机可以通过桥接网络通信</span></span><br><span class="line">ping 192.168.199.102	<span class="comment"># ping通代表主机和开发板可以通过交换机通信</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ping www.baidu.com	<span class="comment"># ping通代表主机主机能上网</span></span><br><span class="line">ping 192.168.138.129	<span class="comment"># ping通代表主机和虚拟机可以通过NAT网络通信</span></span><br><span class="line">ping 192.168.199.103	<span class="comment"># ping通代表主机和虚拟机可以通过桥接网络通信</span></span><br><span class="line">ping 192.168.199.102	<span class="comment"># ping通代表主机和开发板可以通过交换机通信</span></span><br></pre></td></tr></table></figure>
 <p><img src="https://cdn.buct-alcp.top/20230827211456.png" alt=""></p>
 <p>打开虚拟机终端输入以下命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ping www.baidu.com	<span class="comment"># ping通代表虚拟机能上网</span></span><br><span class="line">ping 192.168.138.1	<span class="comment"># ping通代表虚拟机和主机可以通过NAT网络通信</span></span><br><span class="line">ping 192.168.199.104	<span class="comment"># ping通代表虚拟机和主机可以通过桥接网络通信</span></span><br><span class="line">ping 192.168.199.102	<span class="comment"># ping通代表虚拟机和开发板可以通过桥接网络+交换机通信</span></span><br></pre></td></tr></table></figure>
