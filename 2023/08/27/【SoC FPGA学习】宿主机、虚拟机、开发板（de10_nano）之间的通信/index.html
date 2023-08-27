@@ -214,15 +214,15 @@
 <ul>
 <li>桥接模式：主机网卡与虚拟机虚拟的网卡利用虚拟网桥进行通信。在桥接的作用下，类似于把物理主机虚拟为一个交换机，所有桥接设置的虚拟机连接到这个交换机的一个接口上，物理主机也同样插在这个交换机当中，所以所有桥接下的网卡与网卡都是交换模式的，相互可以访问而不干扰。在桥接模式下，虚拟机ip地址需要与主机在同一个网段，如果需要联网，则网关与DNS需要与主机网卡一致。其网络结构如下图所示：</li>
 </ul>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/dbec7a5be0850ec99cdae9c4c9029410.png" alt=""></p>
+<p><img src="https://cdn.buct-alcp.top/20230827224920.png" alt=""></p>
 <ul>
 <li>NAT（地址转换模式）：如果你的网络ip资源紧缺，但是你又希望你的虚拟机能够联网，这时候NAT模式是最好的选择。NAT模式借助虚拟NAT设备和虚拟<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=DHCP&amp;spm=1001.2101.3001.7020">DHCP</a>服务器，使得虚拟机可以联网。在NAT模式中，主机网卡直接与虚拟NAT设备相连，然后虚拟NAT设备与虚拟DHCP服务器一起连接在虚拟交换机VMnet8上，这样就实现了虚拟机联网。VMware Network Adapter VMnet8虚拟网卡主要是为了实现主机与虚拟机之间的通信。</li>
 </ul>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/ee96dc3d35c41cf3aa37ca803b892b71.png" alt=""></p>
+<p><img src="https://cdn.buct-alcp.top/20230827225056.png" alt=""></p>
 <ul>
 <li>Host-Only模式：Host-Only模式其实就是NAT模式去除了虚拟NAT设备，然后使用VMware Network Adapter VMnet1虚拟网卡连接VMnet1虚拟交换机来与虚拟机通信的，Host-Only模式将虚拟机与外网隔开，使得虚拟机成为一个独立的系统，只与主机相互通讯。如果要使得虚拟机能联网，我们可以将主机网卡共享给VMware Network Adapter VMnet1网卡，从而达到虚拟机联网的目的。其网络结构如下图所示：</li>
 </ul>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/bb5bf138a6ace1f534ea8cf66a7516bf.png" alt="Host-Only模式"></p>
+<p><img src="https://cdn.buct-alcp.top/20230827225200.png" alt=""></p>
 <blockquote>
 <p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40893525/article/details/122247167">网络连接三种方式-仅主机模式_仅主模式联网_随心动，向阳行的博客-CSDN博客</a></p>
 </blockquote>
