@@ -1,0 +1,332 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ | ANG404's Blog</title><meta name="author" content="ANG404"><meta name="copyright" content="ANG404"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="ALINX AXU4EVB开发板移植PYNQ过程记录。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ">
+<meta property="og:url" content="https://ang404me.github.io/2023/11/03/%E3%80%90SoC-FPGA%E3%80%91ALINX-AXU4EVB%E5%BC%80%E5%8F%91%E6%9D%BF%E7%A7%BB%E6%A4%8DPYNQ/index.html">
+<meta property="og:site_name" content="ANG404&#39;s Blog">
+<meta property="og:description" content="ALINX AXU4EVB开发板移植PYNQ过程记录。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+<meta property="article:published_time" content="2023-11-03T06:41:08.000Z">
+<meta property="article:modified_time" content="2023-11-03T06:41:08.000Z">
+<meta property="article:author" content="ANG404">
+<meta property="article:tag" content="SoC FPGA">
+<meta property="article:tag" content="PYNQ">
+<meta property="article:tag" content="AXU4EVB">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ang404me.github.io/2023/11/03/%E3%80%90SoC-FPGA%E3%80%91ALINX-AXU4EVB%E5%BC%80%E5%8F%91%E6%9D%BF%E7%A7%BB%E6%A4%8DPYNQ/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"KO507S2B4N","apiKey":"f97c3f82d7e1bfd4384590360f0bad75","indexName":"hexo","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容：${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":3000,"languages":{"author":"作者: ANG404","link":"链接: ","source":"来源: ANG404's Blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: false,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-11-03 14:41:08'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mycss.css"><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/DibbupDOTKvQMfAaYkjlvq4nR5Zkxd8ebYiauKfmGDGzYHbP5xhEG0FXkCoT3KaC8xe7WguiaKLA3AzNuYGe2V8ibg/132" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 足迹</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group hide" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影片</span></a></li></ul></div><div class="menus_item"><a class="site-page group hide" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 链接</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></li><li><a class="site-page child" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&amp;w=2670&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')"><nav id="nav"><span id="blog-info"><a href="/" title="ANG404's Blog"><span class="site-name">ANG404's Blog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 足迹</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group hide" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影片</span></a></li></ul></div><div class="menus_item"><a class="site-page group hide" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 链接</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></li><li><a class="site-page child" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-11-03T06:41:08.000Z" title="发表于 2023-11-03 14:41:08">2023-11-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-11-03T06:41:08.000Z" title="更新于 2023-11-03 14:41:08">2023-11-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/SoC-FPGA/">SoC FPGA</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1>一、环境准备</h1>
+<p>操作系统：Ubuntu18.04，硬盘空间不小于300G，运行内存不小于8G。</p>
+<p>软件版本：Vivado 2020.1，Petalinux 2020.1</p>
+<p>搭建流程：先下载资料，安装VM ware，安装Ubuntu18.04，然后可以先根据下面资料course_s0教程安装Vivado和Petalinux，或者在第三章移植PYNQ时安装。</p>
+<blockquote>
+<p>资源下载&amp;教程</p>
+<p>AXU4EV-E资料链接：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1bxAXUcleaklWUu7vLzqiEA">https://pan.baidu.com/s/1bxAXUcleaklWUu7vLzqiEA</a></p>
+<p>提取码：sk53</p>
+<p>软件包链接：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1yWcxMFvHPhUumOs1ZtwLng">https://pan.baidu.com/s/1yWcxMFvHPhUumOs1ZtwLng</a></p>
+<p>提取码：5kwq</p>
+</blockquote>
+<h1>二、最小系统搭建</h1>
+<p>参考course_s2/01_ps_hello来搭建，应该不用改。</p>
+<p>注意：我们要从SD1来启动linux，而PYNQ工程默认的是SD0，这需要我们在移植PYNQ时修改一些文件（对应3.6小节内容）。</p>
+<p><img src="https://cdn.buct-alcp.top/20240616144345.png" alt=""></p>
+<p>最小系统最后长这样：</p>
+<p><img src="https://cdn.buct-alcp.top/20240616144355.png" alt=""></p>
+<p>后面创建pynq工程的时候，直接用这个工程添加功能就行。</p>
+<h3 id="编译生成bitstream并导出硬件">编译生成bitstream并导出硬件</h3>
+<p><img src="https://cdn.buct-alcp.top/20240616144440.png" alt=""></p>
+<p>导出.xsa文件：File-&gt;export-&gt;export hardware-&gt;fiex-&gt;<strong>include bitstream</strong>，得到.xsa文件。</p>
+<p>导出.bit文件：File-&gt;export-&gt;export bitstream file，得到.bit文件。</p>
+<h1>三、移植PYNQ</h1>
+<p>PYNQ编译是基于Petalinux的，可以参考<a target="_blank" rel="noopener" href="https://docs.xilinx.com/v/u/zh-CN/ug1144-petalinux-tools-reference-guide">ug1144</a>。同样，这几个链接也很重要：<a target="_blank" rel="noopener" href="https://github.com/Xilinx/PYNQ/tree/master/sdbuild">PYNQ/sdbuild</a>、<a target="_blank" rel="noopener" href="https://pynq.readthedocs.io/en/latest/getting_started.html">PYNQ官方教程</a></p>
+<h2 id="3-1-克隆PYNQ项目">3.1 克隆PYNQ项目</h2>
+<h3 id="①-查看对应的PYNQ版本"><strong>① 查看对应的PYNQ版本</strong></h3>
+<p>Vivado、PYNQ的版本一定要对应：</p>
+<p><img src="https://cdn.buct-alcp.top/20240616144520.png" alt=""></p>
+<blockquote>
+<p>查看这个网址：<a target="_blank" rel="noopener" href="https://pynq.readthedocs.io/en/latest/pynq_sd_card.html?highlight=release#">https://pynq.readthedocs.io/en/latest/pynq_sd_card.html?highlight=release#</a></p>
+</blockquote>
+<h3 id="②-创建分支">② 创建分支</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/Xilinx/PYNQ.git</span><br><span class="line"><span class="built_in">cd</span> PYNQ</span><br><span class="line">git checkout v2.6.0</span><br><span class="line">git checkout -b axu4evb</span><br></pre></td></tr></table></figure>
+<h4 id="git基本命令">git基本命令</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git status    <span class="comment">#查看状态</span></span><br><span class="line">git branch    <span class="comment">#查看分支</span></span><br><span class="line">git checkout axu4evb    <span class="comment">#切换到xx分支</span></span><br><span class="line">git add 单个文件名|通配符    <span class="comment">#将某文件加入暂存区</span></span><br><span class="line">git add .    <span class="comment">#将全部文件加入暂存区</span></span><br><span class="line">git commit -m <span class="string">&#x27;first command&#x27;</span>    <span class="comment">#提交到本地仓库</span></span><br></pre></td></tr></table></figure>
+<p><strong>每次修改后都要commit到本地仓库！</strong></p>
+<h2 id="3-2-PYNQ编译环境准备">3.2 PYNQ编译环境准备</h2>
+<h3 id="①-将默认dash终端改成bash">① 将默认dash终端改成bash</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg-reconfigure dash</span><br><span class="line"><span class="comment"># 此处注意一定要选择no，否则会导致之后petalinux安装失败</span></span><br></pre></td></tr></table></figure>
+<h3 id="②-安装依赖">② 安装依赖</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> sdbuild</span><br><span class="line"><span class="built_in">source</span> ./scripts/setup_host.sh</span><br><span class="line">sudo apt install ninja-build</span><br></pre></td></tr></table></figure>
+<p>setup_host.sh报错一般是网络问题。</p>
+<h3 id="③-安装Vivado和Petalinux">③ 安装Vivado和Petalinux</h3>
+<p>参考course_s0_Xilinx开发环境安装教程。</p>
+<h3 id="④-添加bash环境变量">④ 添加bash环境变量</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gedit  ~/.bashrc</span><br></pre></td></tr></table></figure>
+<p>添加以下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">source /tools/Xilinx/Vivado/2020.1/settings64.sh</span><br><span class="line">source /tools/Xilinx/Vitis/2020.1/settings64.sh</span><br><span class="line">source /opt/pkg/petalinux/settings.sh</span><br><span class="line">export PATH=/opt/qemu/bin:/opt/crosstool-ng/bin:$PATH</span><br></pre></td></tr></table></figure>
+<p>重启终端会显示petalinux的信息：</p>
+<p><img src="https://cdn.buct-alcp.top/20240616144629.png" alt=""></p>
+<h2 id="3-3-自定义开发板（用-xsa来构筑）">3.3 自定义开发板（用.xsa来构筑）</h2>
+<p>PYNQ在<code>boards</code>文件夹下预置了<code>Pynq-Z1</code>、<code>Pynq-Z2</code>、<code>ZCU104</code>三个与对应开发板同名的文件夹。它们的内部结构大同小异，主要分成以下五个部分：</p>
+<ol>
+<li><code>notebooks</code>；</li>
+<li><code>petalinux_bsp</code>；</li>
+<li><code>packages</code>；</li>
+<li><code>base</code>、<code>logictools</code>等<code>Overlay</code>文件夹；</li>
+<li><code>&lt;board_name&gt;.spec</code>。</li>
+</ol>
+<p>我们要模仿这个格式在boards目录创建一个名为<code>axu4evb</code>的文件夹，添加必要的一些文件目录和文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">axu4evb/</span><br><span class="line">|-- petalinux_bsp/</span><br><span class="line">|   |-- hardware_project/</span><br><span class="line">|       |-- design_1_wrapper.xsa</span><br><span class="line">|   |-- meta-user/</span><br><span class="line">|       |-- conf/</span><br><span class="line">|           |-- petalinuxbsp.conf</span><br><span class="line">|       |-- recipes-bsp/</span><br><span class="line">|           |-- device-tree/</span><br><span class="line">|                |-- files/</span><br><span class="line">|                    |-- system-user.dtsi</span><br><span class="line">|-- base/</span><br><span class="line">|   |-- base.bit</span><br><span class="line">|-- axu4evb.spec</span><br></pre></td></tr></table></figure>
+<h3 id="①-xsa和-bit">① .xsa和.bit</h3>
+<p><code>design_1_wrapper.xsa</code>和<code>base.bit</code>是第二章导出的硬件文件，.xsa文件在编译时会自动改名为system.xsa，.bit文件我改成了base.bit（网上都是这样写的）。</p>
+<h3 id="②-petalinuxbsp-conf（可选）">② petalinuxbsp.conf（可选）</h3>
+<p><code>petalinuxbsp.conf</code>文件定义了离线编译的资源路径，离线编译能够避免网络造成的问题并且提高编译的速度。注意：这个路径名称不能太长否则会报错。文件内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DL_DIR = &quot;$&#123;HOME&#125;/Downloads/2020.1/downloads&quot;</span><br><span class="line">SSTATE_DIR = &quot;$&#123;HOME&#125;/Downloads/2020.1/aarch64&quot;</span><br></pre></td></tr></table></figure>
+<p>这两个离线资源包也可以从 <a target="_blank" rel="noopener" href="https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-design-tools/archive.html">xilinx 官网获取</a>（前面的资料也有），随后解压到合适的位置。</p>
+<p><img src="https://cdn.buct-alcp.top/20240616144755.png" alt=""></p>
+<h3 id="③-system-user-dtsi">③ system-user.dtsi</h3>
+<p><code>system-user.dtsi</code>是用户设备树文件，定义了SD卡、usb的信息以及根文件系统。我们希望从SD1的第一个分区(mmcblk1p1)启动boot，挂载SD1的第二个分区(mmcblk1p2)作为根文件系统，这里mmcblk1p1是FAT32格式，mmcblk1p2是EXT4格式。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">/include/ &quot;system-conf.dtsi&quot;</span><br><span class="line">/ &#123;</span><br><span class="line">        chosen &#123;</span><br><span class="line">                bootargs = &quot;earlycon console=ttyPS0,115200 clk_ignore_unused root=/dev/mmcblk1p2 rw rootwait cma=512M&quot;;</span><br><span class="line">        &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">/* SD */</span><br><span class="line">&amp;sdhci1 &#123;</span><br><span class="line">        disable-wp;</span><br><span class="line">        no-1-8-v;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">/* USB */</span><br><span class="line">&amp;dwc3_0 &#123;</span><br><span class="line">        status = &quot;okay&quot;;</span><br><span class="line">        dr_mode = &quot;host&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="④-spec">④ .spec</h3>
+<p><code>axu4evb.spec</code>文件描述了针对该开发板的各种配置和文件路径。它的格式如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ARCH_&lt;board_name&gt; := aarch64 # Zynq的CPU架构，可以是aarch64或arm</span><br><span class="line">BSP_&lt;board_name&gt; := ... # 开发板的BSP文件（有的话优先从bsp开始构建）</span><br><span class="line">BITSTREAM_&lt;board_name&gt; := ... # 默认的比特流文件</span><br><span class="line">FPGA_MANAGER_&lt;board_name&gt; := 1 # 1或不写该项表示后期可以导入不同的硬件设计(.bit)，这是pynq的优势</span><br><span class="line"></span><br><span class="line">STAGE4_PACKAGES_&lt;board_name&gt; := pynq ethernet # 必要的package</span><br></pre></td></tr></table></figure>
+<p>我的写法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ARCH_axu4evb := aarch64</span><br><span class="line">BSP_axu4evb :=</span><br><span class="line">BITSTREAM_axu4evb := base/base.bit</span><br><span class="line">FPGA_MANAGER_axu4evb := 1</span><br><span class="line">STAGE4_PACKAGES_axu4evb := pynq ethernet</span><br></pre></td></tr></table></figure>
+<h2 id="3-4-下载预编译rootfs（推荐）">3.4 下载预编译rootfs（推荐）</h2>
+<p>预编译文件能够避免网络波动造成编译出错，能够提高编译效率。<a target="_blank" rel="noopener" href="http://www.pynq.io/board.html">pynq官网</a></p>
+<p>我用的是2.6版本：<a target="_blank" rel="noopener" href="http://bit.ly/pynq_rootfs_aarch64_v2_6">http://bit.ly/pynq_rootfs_aarch64_v2_6</a></p>
+<p>解压后获得<code>bionic.aarch64.2.6.0_2020_10_19.img</code>文件。</p>
+<h2 id="3-5-其他加速编译的办法">3.5 其他加速编译的办法</h2>
+<h3 id="①-sudo不用输密码">① sudo不用输密码</h3>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="http://t.csdnimg.cn/OYwYb">http://t.csdnimg.cn/OYwYb</a></p>
+</blockquote>
+<h3 id="②-删掉boards中的Pynq-Z1和ZCU104">② 删掉boards中的Pynq-Z1和ZCU104</h3>
+<p>要留一个Pynq-Z2用来编译pynq，<strong>删完后记得git commit</strong>。</p>
+<h2 id="3-6-修改root分区（Kernel-Panic错误）">3.6 修改root分区（Kernel Panic错误）</h2>
+<p>此项可选，如果开发板默认是SD0启动可以跳过。</p>
+<p>PYNQ默认总是从/dev/mmcblk0（这个路径是PYNQ上的，不是你的宿主Ubuntu上的）启动系统，即它如果它有多个SD外设的话，SD卡要连在PS_SD0上。黑金的板子有两个SD设备，一个是一颗eMMC Flash芯片，另一个是TF卡。eMMC 连在PS_SD0上，TF卡连在PS_SD1上。默认情形下，PYNQ总是会尝试从前者启动，而我们的系统实际存放在SD1卡上。</p>
+<p>这样会造成如下的错误：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(179,10)</span><br></pre></td></tr></table></figure>
+<p>因为一些原因，直接修改<code>system-user.dtsi</code>文件貌似不起作用，需要修改两处：</p>
+<ul>
+<li>修改<code>./PYNQ/sdbuild/boot/meta-pynq/recipes-bsp/device-tree/files/pynq_bootargs.dtsi</code>，将其中的mmcblk0p2改成mmcblk1p2。</li>
+<li>修改sdbuild/Makefile，将mmcblk0p2改成mmcblk1p2：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;CONFIG_SUBSYSTEM_SDROOT_DEV=&quot;/dev/mmcblk1p2&quot;&#x27;</span> &gt;&gt; $$(PL_CONFIG_<span class="variable">$1</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="3-7-编译">3.7 编译</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> sdbuild</span><br><span class="line">make BOARDS=axu4evb PREBUILT=/home/ang404/Downloads/2020.1/pynq_rootfs_aarch64/bionic.aarch64.2.6.0_2020_10_19.img</span><br></pre></td></tr></table></figure>
+<p>等待并祈祷……</p>
+<p>如果没有报错会在<code>output</code>文件夹下生成<code>axu4evb-2.6.0.img</code>，大概7GB，将其烧录到SD卡上。</p>
+<p>如果构建出错，可以使用如下指令清除构建的文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make delete</span><br><span class="line">make unmount</span><br><span class="line">make clean</span><br></pre></td></tr></table></figure>
+<p>如果需要修改petalinux相关的配置，可以在第一次编译完成后进入sdbuild/build/aux4evb/petalinux_project 运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PYNQ_BOARDNAME=aux4evb FPGA_MANAGER=1 petalinux-config -c kernel    <span class="comment">#修改Linux内核配置</span></span><br><span class="line">PYNQ_BOARDNAME=aux4evb FPGA_MANAGER=1 petalinux-config -c u-boot    <span class="comment">#修改u-boot配置</span></span><br><span class="line">PYNQ_BOARDNAME=aux4evb FPGA_MANAGER=1 petalinux-config -c rootfs    <span class="comment">#修改rootfs配置</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-8-分区扩容">3.8 分区扩容</h2>
+<p>烧录完后先别急着跑开发板，先将EXT4分区扩容，不扩容连个文件都改不了。我用的是gparted工具。</p>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="http://t.csdnimg.cn/ArqjM">http://t.csdnimg.cn/ArqjM</a></p>
+</blockquote>
+<h2 id="3-9-PYNQ系统启动时卡mmcblk0p1解决办法">3.9 PYNQ系统启动时卡mmcblk0p1解决办法</h2>
+<p>现象：在PYNQ系统启动时，会按照/etc/fstab文件挂载各个分区，我们的SD卡为mmcblk1，而PYNQ写死的mmcblk0，导致无限尝试挂载，系统进入emergency模式，最终卡死。这里找了好久最后发现是fstab的问题，尽管在3.6中修改了，但编译生成fstab文件还是mmcblk0p1。</p>
+<p>解决办法：将烧录的SD卡挂载到虚拟机中，进入EXT4分区的etc目录下修改fstab文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gedit fstab</span><br></pre></td></tr></table></figure>
+<p>将其中的mmcblk0p1改成mmcblk1p1：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/dev/mmcblk1p1 /boot vfat defaults 0 2</span><br></pre></td></tr></table></figure>
+<h1>四、PYNQ配网</h1>
+<p>目标：1）开发板可以通过网线直接与主机连接；2）使开发板通过网线连接Wifi路由器，使得内网中的开发者都可以访问开发板；3）开发板开发板可以访问外网。</p>
+<h2 id="4-1-修改静态IP">4.1 修改静态IP</h2>
+<p>本机以太网卡静态ip设置为：</p>
+<p><img src="https://cdn.buct-alcp.top/20240616145216.png" alt=""></p>
+<p>查看本机无线网卡动态ip为（dhcp分配的，cmd中输入ipconfig命令查看）：</p>
+<p><img src="https://cdn.buct-alcp.top/20240616145226.png" alt=""></p>
+<p>虚拟机静态ip设置为：</p>
+<p><img src="https://cdn.buct-alcp.top/20240616145234.png" alt=""></p>
+<p>打开开发板终端，输入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vi /etc/network/interfaces.d/eth0</span><br></pre></td></tr></table></figure>
+<p>替换内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">auto eth0</span><br><span class="line"><span class="comment"># iface eth0 inet dhcp</span></span><br><span class="line">iface eth0 inet static</span><br><span class="line">address 192.168.0.151</span><br><span class="line">netmask 255.255.255.0</span><br><span class="line">gateway 192.168.0.1</span><br><span class="line"></span><br><span class="line">auto eth0:1</span><br><span class="line">iface eth0:1 inet static</span><br><span class="line">address 192.168.199.102</span><br><span class="line">netmask 255.255.0.0</span><br></pre></td></tr></table></figure>
+<p>经过以上步骤，目标1)和2）就完成了。</p>
+<h2 id="4-2-修改DNS和Route">4.2 修改DNS和Route</h2>
+<h3 id="①-查看最佳DNS">① 查看最佳DNS</h3>
+<p>直接到路由器页面查看：</p>
+<p><img src="https://cdn.buct-alcp.top/20240616145308.png" alt=""></p>
+<h3 id="②-修改DNS">② 修改DNS</h3>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="http://t.csdnimg.cn/hC3Nw">http://t.csdnimg.cn/hC3Nw</a></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vi /etc/systemd/resolved.conf</span><br></pre></td></tr></table></figure>
+<p>修改DNS：</p>
+<p><img src="https://cdn.buct-alcp.top/20240616145330.png" alt=""></p>
+<p>重启网络服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart systemd-resolved.service</span><br></pre></td></tr></table></figure>
+<p>查看修改成功没：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemd-resolve --status</span><br></pre></td></tr></table></figure>
+<h3 id="③-查看路由-修改路由">③ 查看路由&amp;修改路由</h3>
+<p>查看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">route -n</span><br></pre></td></tr></table></figure>
+<p>添加默认网关：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">route add default gw 192.168.0.1</span><br></pre></td></tr></table></figure>
+<h2 id="4-3-更改apt镜像源（可选）">4.3 更改apt镜像源（可选）</h2>
+<h1>五、PYNQ，启动！</h1>
+<p>直连访问：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.199.102:9090/tree</span><br></pre></td></tr></table></figure>
+<p>远程访问（同局域网）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.0.151:9090/tree</span><br></pre></td></tr></table></figure>
+<h1>六、总结</h1>
+<p>移植PYNQ真的挺折磨的，还好前人留下了比较多的经验可以少踩一些坑，感谢！</p>
+<blockquote>
+<p>移植参考：</p>
+<p>【1】<a target="_blank" rel="noopener" href="https://zhutmost.com/Engineering/pynq-compile/">https://zhutmost.com/Engineering/pynq-compile/</a> 这位大佬分析并解决了一些bug，很有参考价值。</p>
+<p>【2】<a target="_blank" rel="noopener" href="http://t.csdnimg.cn/lgaYV">http://t.csdnimg.cn/lgaYV</a> 这篇与我的项目比较像，可惜阅读量不高，我移植成功了才找到。</p>
+<p>【3】<a target="_blank" rel="noopener" href="http://t.csdnimg.cn/c3OFG">http://t.csdnimg.cn/c3OFG</a></p>
+<p>【4】<a target="_blank" rel="noopener" href="http://t.csdnimg.cn/osfOI">http://t.csdnimg.cn/osfOI</a> 这篇让我意识到了是fstab的问题</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://ANG404me.github.io">ANG404</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://ang404me.github.io/2023/11/03/%E3%80%90SoC-FPGA%E3%80%91ALINX-AXU4EVB%E5%BC%80%E5%8F%91%E6%9D%BF%E7%A7%BB%E6%A4%8DPYNQ/">https://ang404me.github.io/2023/11/03/%E3%80%90SoC-FPGA%E3%80%91ALINX-AXU4EVB%E5%BC%80%E5%8F%91%E6%9D%BF%E7%A7%BB%E6%A4%8DPYNQ/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://ANG404me.github.io" target="_blank">ANG404's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/SoC-FPGA/">SoC FPGA</a><a class="post-meta__tags" href="/tags/PYNQ/">PYNQ</a><a class="post-meta__tags" href="/tags/AXU4EVB/">AXU4EVB</a></div><div class="post_share"><div class="social-share" data-image="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&amp;w=2670&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/09/15/%E3%80%90SoC-FPGA%E3%80%91PipeCNN%E4%BB%A3%E7%A0%81%E7%B2%BE%E8%AF%BB/" title="【SoC FPGA】6.PipeCNN代码精读"><img class="cover" src="https://plus.unsplash.com/premium_photo-1721926057308-2aa7ce470776?q=80&amp;w=3870&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【SoC FPGA】6.PipeCNN代码精读</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/08/30/%E3%80%90SoC%20FPGA%E3%80%91GDB%20Server%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E3%80%81GDB%20ARM%20%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="【SoC FPGA】2.GDB Server远程调试、GDB ARM 交叉编译环境搭建"><img class="cover" src="https://plus.unsplash.com/premium_photo-1663946899728-39b7b401535e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1335&q=80" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-30</div><div class="title">【SoC FPGA】2.GDB Server远程调试、GDB ARM 交叉编译环境搭建</div></div></a></div><div><a href="/2023/09/05/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E5%BC%82%E6%9E%84%E8%AE%A1%E7%AE%97%E5%9F%BA%E7%A1%80/" title="【SoC FPGA】3.OpenCL异构计算基础"><img class="cover" src="https://images.unsplash.com/photo-1720451815682-3353b81a6633?q=80&w=3604&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-05</div><div class="title">【SoC FPGA】3.OpenCL异构计算基础</div></div></a></div><div><a href="/2023/09/12/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B/" title="【SoC FPGA】5.OpenCL程序设计流程"><img class="cover" src="https://images.unsplash.com/photo-1721340143289-94be4f77cda4?q=80&w=2832&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-12</div><div class="title">【SoC FPGA】5.OpenCL程序设计流程</div></div></a></div><div><a href="/2023/08/27/%E3%80%90SoC%20FPGA%E3%80%91%E5%AE%BF%E4%B8%BB%E6%9C%BA%E3%80%81%E8%99%9A%E6%8B%9F%E6%9C%BA%E3%80%81%E5%BC%80%E5%8F%91%E6%9D%BF%EF%BC%88de10_nano%EF%BC%89%E4%B9%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1/" title="【SoC FPGA】1.宿主机、虚拟机、开发板（de10_nano）之间的通信"><img class="cover" src="https://images.unsplash.com/photo-1517181875630-f72350452109?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-27</div><div class="title">【SoC FPGA】1.宿主机、虚拟机、开发板（de10_nano）之间的通信</div></div></a></div><div><a href="/2023/09/09/%E3%80%90SoC%20FPGA%E3%80%91%E9%9D%A2%E5%90%91Intel%20FPGA%20%E7%9A%84%20OpenCL%2018.1%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%90%AD%E5%BB%BA/" title="【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建"><img class="cover" src="https://plus.unsplash.com/premium_photo-1721405381040-10cbc42ee4a5?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-09</div><div class="title">【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建</div></div></a></div><div><a href="/2023/09/15/%E3%80%90SoC-FPGA%E3%80%91PipeCNN%E4%BB%A3%E7%A0%81%E7%B2%BE%E8%AF%BB/" title="【SoC FPGA】6.PipeCNN代码精读"><img class="cover" src="https://plus.unsplash.com/premium_photo-1721926057308-2aa7ce470776?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-15</div><div class="title">【SoC FPGA】6.PipeCNN代码精读</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/DibbupDOTKvQMfAaYkjlvq4nR5Zkxd8ebYiauKfmGDGzYHbP5xhEG0FXkCoT3KaC8xe7WguiaKLA3AzNuYGe2V8ibg/132" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">ANG404</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ANG404me"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/ANG404me" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">QQ:1453897678</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">一、环境准备</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">二、最小系统搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E7%94%9F%E6%88%90bitstream%E5%B9%B6%E5%AF%BC%E5%87%BA%E7%A1%AC%E4%BB%B6"><span class="toc-text">编译生成bitstream并导出硬件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">三、移植PYNQ</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E5%85%8B%E9%9A%86PYNQ%E9%A1%B9%E7%9B%AE"><span class="toc-text">3.1 克隆PYNQ项目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A0-%E6%9F%A5%E7%9C%8B%E5%AF%B9%E5%BA%94%E7%9A%84PYNQ%E7%89%88%E6%9C%AC"><span class="toc-text">① 查看对应的PYNQ版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A1-%E5%88%9B%E5%BB%BA%E5%88%86%E6%94%AF"><span class="toc-text">② 创建分支</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#git%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4"><span class="toc-text">git基本命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-PYNQ%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-text">3.2 PYNQ编译环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A0-%E5%B0%86%E9%BB%98%E8%AE%A4dash%E7%BB%88%E7%AB%AF%E6%94%B9%E6%88%90bash"><span class="toc-text">① 将默认dash终端改成bash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A1-%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="toc-text">② 安装依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A2-%E5%AE%89%E8%A3%85Vivado%E5%92%8CPetalinux"><span class="toc-text">③ 安装Vivado和Petalinux</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A3-%E6%B7%BB%E5%8A%A0bash%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-text">④ 添加bash环境变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%80%E5%8F%91%E6%9D%BF%EF%BC%88%E7%94%A8-xsa%E6%9D%A5%E6%9E%84%E7%AD%91%EF%BC%89"><span class="toc-text">3.3 自定义开发板（用.xsa来构筑）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A0-xsa%E5%92%8C-bit"><span class="toc-text">① .xsa和.bit</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A1-petalinuxbsp-conf%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="toc-text">② petalinuxbsp.conf（可选）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A2-system-user-dtsi"><span class="toc-text">③ system-user.dtsi</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A3-spec"><span class="toc-text">④ .spec</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E4%B8%8B%E8%BD%BD%E9%A2%84%E7%BC%96%E8%AF%91rootfs%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="toc-text">3.4 下载预编译rootfs（推荐）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-%E5%85%B6%E4%BB%96%E5%8A%A0%E9%80%9F%E7%BC%96%E8%AF%91%E7%9A%84%E5%8A%9E%E6%B3%95"><span class="toc-text">3.5 其他加速编译的办法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A0-sudo%E4%B8%8D%E7%94%A8%E8%BE%93%E5%AF%86%E7%A0%81"><span class="toc-text">① sudo不用输密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A1-%E5%88%A0%E6%8E%89boards%E4%B8%AD%E7%9A%84Pynq-Z1%E5%92%8CZCU104"><span class="toc-text">② 删掉boards中的Pynq-Z1和ZCU104</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6-%E4%BF%AE%E6%94%B9root%E5%88%86%E5%8C%BA%EF%BC%88Kernel-Panic%E9%94%99%E8%AF%AF%EF%BC%89"><span class="toc-text">3.6 修改root分区（Kernel Panic错误）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-7-%E7%BC%96%E8%AF%91"><span class="toc-text">3.7 编译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-8-%E5%88%86%E5%8C%BA%E6%89%A9%E5%AE%B9"><span class="toc-text">3.8 分区扩容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-9-PYNQ%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%97%B6%E5%8D%A1mmcblk0p1%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95"><span class="toc-text">3.9 PYNQ系统启动时卡mmcblk0p1解决办法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">四、PYNQ配网</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E4%BF%AE%E6%94%B9%E9%9D%99%E6%80%81IP"><span class="toc-text">4.1 修改静态IP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E4%BF%AE%E6%94%B9DNS%E5%92%8CRoute"><span class="toc-text">4.2 修改DNS和Route</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A0-%E6%9F%A5%E7%9C%8B%E6%9C%80%E4%BD%B3DNS"><span class="toc-text">① 查看最佳DNS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A1-%E4%BF%AE%E6%94%B9DNS"><span class="toc-text">② 修改DNS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A2-%E6%9F%A5%E7%9C%8B%E8%B7%AF%E7%94%B1-%E4%BF%AE%E6%94%B9%E8%B7%AF%E7%94%B1"><span class="toc-text">③ 查看路由&amp;修改路由</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-%E6%9B%B4%E6%94%B9apt%E9%95%9C%E5%83%8F%E6%BA%90%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="toc-text">4.3 更改apt镜像源（可选）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">五、PYNQ，启动！</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">六、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/11/03/%E3%80%90SoC-FPGA%E3%80%91ALINX-AXU4EVB%E5%BC%80%E5%8F%91%E6%9D%BF%E7%A7%BB%E6%A4%8DPYNQ/" title="【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&amp;w=2670&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ"/></a><div class="content"><a class="title" href="/2023/11/03/%E3%80%90SoC-FPGA%E3%80%91ALINX-AXU4EVB%E5%BC%80%E5%8F%91%E6%9D%BF%E7%A7%BB%E6%A4%8DPYNQ/" title="【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ">【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ</a><time datetime="2023-11-03T06:41:08.000Z" title="发表于 2023-11-03 14:41:08">2023-11-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/15/%E3%80%90SoC-FPGA%E3%80%91PipeCNN%E4%BB%A3%E7%A0%81%E7%B2%BE%E8%AF%BB/" title="【SoC FPGA】6.PipeCNN代码精读"><img src="https://plus.unsplash.com/premium_photo-1721926057308-2aa7ce470776?q=80&amp;w=3870&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】6.PipeCNN代码精读"/></a><div class="content"><a class="title" href="/2023/09/15/%E3%80%90SoC-FPGA%E3%80%91PipeCNN%E4%BB%A3%E7%A0%81%E7%B2%BE%E8%AF%BB/" title="【SoC FPGA】6.PipeCNN代码精读">【SoC FPGA】6.PipeCNN代码精读</a><time datetime="2023-09-15T06:41:08.000Z" title="发表于 2023-09-15 14:41:08">2023-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/12/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B/" title="【SoC FPGA】5.OpenCL程序设计流程"><img src="https://images.unsplash.com/photo-1721340143289-94be4f77cda4?q=80&amp;w=2832&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】5.OpenCL程序设计流程"/></a><div class="content"><a class="title" href="/2023/09/12/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B/" title="【SoC FPGA】5.OpenCL程序设计流程">【SoC FPGA】5.OpenCL程序设计流程</a><time datetime="2023-09-12T06:41:08.000Z" title="发表于 2023-09-12 14:41:08">2023-09-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/09/%E3%80%90SoC%20FPGA%E3%80%91%E9%9D%A2%E5%90%91Intel%20FPGA%20%E7%9A%84%20OpenCL%2018.1%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%90%AD%E5%BB%BA/" title="【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建"><img src="https://plus.unsplash.com/premium_photo-1721405381040-10cbc42ee4a5?q=80&amp;w=3870&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建"/></a><div class="content"><a class="title" href="/2023/09/09/%E3%80%90SoC%20FPGA%E3%80%91%E9%9D%A2%E5%90%91Intel%20FPGA%20%E7%9A%84%20OpenCL%2018.1%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%90%AD%E5%BB%BA/" title="【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建">【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建</a><time datetime="2023-09-09T06:41:08.000Z" title="发表于 2023-09-09 14:41:08">2023-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/05/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E5%BC%82%E6%9E%84%E8%AE%A1%E7%AE%97%E5%9F%BA%E7%A1%80/" title="【SoC FPGA】3.OpenCL异构计算基础"><img src="https://images.unsplash.com/photo-1720451815682-3353b81a6633?q=80&amp;w=3604&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】3.OpenCL异构计算基础"/></a><div class="content"><a class="title" href="/2023/09/05/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E5%BC%82%E6%9E%84%E8%AE%A1%E7%AE%97%E5%9F%BA%E7%A1%80/" title="【SoC FPGA】3.OpenCL异构计算基础">【SoC FPGA】3.OpenCL异构计算基础</a><time datetime="2023-09-05T06:41:08.000Z" title="发表于 2023-09-05 14:41:08">2023-09-05</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&amp;w=2670&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By ANG404</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="algolia-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="search-wrap"><div id="algolia-search-input"></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-info"><div class="algolia-stats"></div><div class="algolia-poweredBy"></div></div></div></div></div><div id="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/algoliasearch/dist/algoliasearch-lite.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instantsearch.js/dist/instantsearch.production.min.js"></script><script src="/js/search/algolia.js"></script></div></body></html>

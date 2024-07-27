@@ -1,0 +1,344 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【SoC FPGA】1.宿主机、虚拟机、开发板（de10_nano）之间的通信 | ANG404's Blog</title><meta name="author" content="ANG404"><meta name="copyright" content="ANG404"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="用VMware的桥接模式和NAT模式实现了宿主机、虚拟机、开发板（de10_nano）三者之间的通信，同时前二者可以上网。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【SoC FPGA】1.宿主机、虚拟机、开发板（de10_nano）之间的通信">
+<meta property="og:url" content="https://ang404me.github.io/2023/08/27/%E3%80%90SoC%20FPGA%E3%80%91%E5%AE%BF%E4%B8%BB%E6%9C%BA%E3%80%81%E8%99%9A%E6%8B%9F%E6%9C%BA%E3%80%81%E5%BC%80%E5%8F%91%E6%9D%BF%EF%BC%88de10_nano%EF%BC%89%E4%B9%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="ANG404&#39;s Blog">
+<meta property="og:description" content="用VMware的桥接模式和NAT模式实现了宿主机、虚拟机、开发板（de10_nano）三者之间的通信，同时前二者可以上网。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images.unsplash.com/photo-1517181875630-f72350452109?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80">
+<meta property="article:published_time" content="2023-08-27T14:28:36.000Z">
+<meta property="article:modified_time" content="2023-08-28T13:52:00.000Z">
+<meta property="article:author" content="ANG404">
+<meta property="article:tag" content="SoC FPGA">
+<meta property="article:tag" content="de10_nano">
+<meta property="article:tag" content="虚拟机">
+<meta property="article:tag" content="VMware">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1517181875630-f72350452109?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ang404me.github.io/2023/08/27/%E3%80%90SoC%20FPGA%E3%80%91%E5%AE%BF%E4%B8%BB%E6%9C%BA%E3%80%81%E8%99%9A%E6%8B%9F%E6%9C%BA%E3%80%81%E5%BC%80%E5%8F%91%E6%9D%BF%EF%BC%88de10_nano%EF%BC%89%E4%B9%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"KO507S2B4N","apiKey":"f97c3f82d7e1bfd4384590360f0bad75","indexName":"hexo","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容：${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":3000,"languages":{"author":"作者: ANG404","link":"链接: ","source":"来源: ANG404's Blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: false,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【SoC FPGA】1.宿主机、虚拟机、开发板（de10_nano）之间的通信',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-08-28 21:52:00'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mycss.css"><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/DibbupDOTKvQMfAaYkjlvq4nR5Zkxd8ebYiauKfmGDGzYHbP5xhEG0FXkCoT3KaC8xe7WguiaKLA3AzNuYGe2V8ibg/132" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 足迹</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group hide" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影片</span></a></li></ul></div><div class="menus_item"><a class="site-page group hide" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 链接</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></li><li><a class="site-page child" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://images.unsplash.com/photo-1517181875630-f72350452109?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=2670&amp;q=80')"><nav id="nav"><span id="blog-info"><a href="/" title="ANG404's Blog"><span class="site-name">ANG404's Blog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 足迹</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group hide" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影片</span></a></li></ul></div><div class="menus_item"><a class="site-page group hide" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 链接</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></li><li><a class="site-page child" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【SoC FPGA】1.宿主机、虚拟机、开发板（de10_nano）之间的通信</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-08-27T14:28:36.000Z" title="发表于 2023-08-27 22:28:36">2023-08-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-08-28T13:52:00.000Z" title="更新于 2023-08-28 21:52:00">2023-08-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/SoC-FPGA/">SoC FPGA</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【SoC FPGA】1.宿主机、虚拟机、开发板（de10_nano）之间的通信"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1>一、实现功能</h1>
+<ul>
+<li>
+<p>宿主机、虚拟机、开发板互相通信。</p>
+</li>
+<li>
+<p>虚拟机和宿主机可以上网。</p>
+</li>
+</ul>
+<h1>二、准备工作</h1>
+<ul>
+<li>
+<p>需要准备：</p>
+<ul>
+<li>
+<p>开发板要插上烧录了linux映像文件的sd卡，拨码开关位置正确。</p>
+</li>
+<li>
+<p>两根网线，一个千兆交换机。</p>
+</li>
+<li>
+<p>一根USB Mini-B线。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>操作系统：</p>
+<ul>
+<li>宿主机：win11</li>
+<li>虚拟机：ubuntu16.04</li>
+<li>开发板：Poky 8.0</li>
+</ul>
+</li>
+<li>
+<p>软件：</p>
+<ul>
+<li>VMware 16 pro</li>
+<li>MobaXterm（windows）：用于ssh连接</li>
+</ul>
+</li>
+</ul>
+<h1>三、实现步骤</h1>
+<h2 id="3-1-连线">3.1 连线</h2>
+<ul>
+<li>电脑——网线——交换机——网线——开发板</li>
+<li>电脑——USB——开发板的UART-to-USB Controller（靠近以太网口的那个）</li>
+</ul>
+<h2 id="3-2-桥接模式-NAT模式-Host-Only模式">3.2 桥接模式/NAT模式/Host-Only模式</h2>
+<p>vmware为我们提供了三种网络工作模式，它们分别是：<strong>Bridged（桥接模式）</strong>、<strong>NAT（网络地址转换模式）</strong>、<strong>Host-Only（仅主机模式）</strong>，虚拟网卡分别对应<strong>VMnet0（不显示）</strong>、<strong>VMnet8</strong>、<strong>VMnet1</strong>。</p>
+<ul>
+<li>桥接模式：主机网卡与虚拟机虚拟的网卡利用虚拟网桥进行通信。在桥接的作用下，类似于把物理主机虚拟为一个交换机，所有桥接设置的虚拟机连接到这个交换机的一个接口上，物理主机也同样插在这个交换机当中，所以所有桥接下的网卡与网卡都是交换模式的，相互可以访问而不干扰。**在桥接模式下，虚拟机ip地址需要与主机在同一个网段，如果需要联网，则网关与DNS需要与主机网卡一致。**其网络结构如下图所示：</li>
+</ul>
+<p><img src="https://cdn.buct-alcp.top/20230827224920.png" alt=""></p>
+<ul>
+<li>NAT（地址转换模式）：如果你的网络ip资源紧缺，但是你又希望你的虚拟机能够联网，这时候NAT模式是最好的选择。NAT模式借助虚拟NAT设备和虚拟<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=DHCP&amp;spm=1001.2101.3001.7020">DHCP</a>服务器，使得虚拟机可以联网。在NAT模式中，主机网卡直接与虚拟NAT设备相连，然后虚拟NAT设备与虚拟DHCP服务器一起连接在虚拟交换机VMnet8上，这样就实现了虚拟机联网。VMware Network Adapter VMnet8虚拟网卡主要是为了实现主机与虚拟机之间的通信。</li>
+</ul>
+<p><img src="https://cdn.buct-alcp.top/20230827225056.png" alt=""></p>
+<ul>
+<li>Host-Only模式：Host-Only模式其实就是NAT模式去除了虚拟NAT设备，然后使用VMware Network Adapter VMnet1虚拟网卡连接VMnet1虚拟交换机来与虚拟机通信的，Host-Only模式将虚拟机与外网隔开，使得虚拟机成为一个独立的系统，只与主机相互通讯。<strong>如果要使得虚拟机能联网，我们可以将主机网卡共享给VMware Network Adapter VMnet1网卡</strong>，从而达到虚拟机联网的目的。其网络结构如下图所示：</li>
+</ul>
+<p><img src="https://cdn.buct-alcp.top/20230827225200.png" alt=""></p>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40893525/article/details/122247167">网络连接三种方式-仅主机模式_仅主模式联网_随心动，向阳行的博客-CSDN博客</a></p>
+</blockquote>
+<h2 id="3-3-配置过程">3.3 配置过程</h2>
+<h3 id="①-添加虚拟网络VMnet0">① 添加虚拟网络VMnet0</h3>
+<p>在windows搜索里搜<code>虚拟网络编辑器</code>，以管理员身份运行。安装虚拟机后在里面应该有VMnet1和VMnet8这两个网络，这两个网络是不用动的，<strong>但要记住VMnet8的子网地址</strong>。如果没有VMnet0，则：</p>
+<p><code>添加网络</code>—&gt;<code>选择VMnet0</code>—&gt;<code>选择桥接模式</code>—&gt;<code>外部连接选择以太网网卡</code>—&gt;<code>应用</code></p>
+<p><img src="https://cdn.buct-alcp.top/20230827193948.png" alt=""></p>
+<h3 id="②-配置以太网网卡静态ip">② 配置以太网网卡静态ip</h3>
+<p><code>打开windows控制面板</code>—&gt;<code>网络和internet</code>—&gt;<code>网络和共享中心</code>—&gt;<code>更改适配器设置</code>，可以看到安装虚拟机后多出了两张虚拟网卡：VMware Network Adapter VMnet1和VMware Network Adapter WMnet8。这两个网卡不需要更改，我们主要更改以太网网卡：</p>
+<p><code>右键以太网</code>—&gt;<code>属性</code>—&gt;<code>双击Internet协议版本4（TCP/IPv4）</code>—&gt;<code>把自动获得ip地址改为使用下面ip地址</code>—&gt;<code>修改ip地址为192.168.199.104，子网掩码为255.255.0.0</code>—&gt;<code>确认</code>。</p>
+<p><img src="https://cdn.buct-alcp.top/20230827194158.png" alt=""></p>
+<p><img src="https://cdn.buct-alcp.top/20230827210310.png" alt=""></p>
+<h3 id="③-虚拟机添加VMnet0网卡">③ 虚拟机添加VMnet0网卡</h3>
+<p>退出虚拟机，<code>选择编辑虚拟机设置</code>—&gt;<code>添加网络适配器</code>—&gt;<code>选择自定义：特定虚拟网络，选择VMnet0</code>—&gt;<code>确定</code>。</p>
+<p><img src="https://cdn.buct-alcp.top/20230827195005.png" alt=""></p>
+<p><img src="https://cdn.buct-alcp.top/20230827195111.png" alt=""></p>
+<p><img src="https://cdn.buct-alcp.top/20230827195149.png" alt=""></p>
+<h3 id="④-检查">④ 检查</h3>
+<p><code>打开虚拟机</code>—&gt;<code>检查网络适配器是否打开（右下角），检查网络是否连接（右上角）</code>—&gt;<code>打开终端</code>—&gt;<code>输入ifconfig命令查看当前网络</code>。一般来说这时候有一个NET网络（我这是ens33）和本地网络（lo），如果NET网络显示ipv4地址为192.168.138.x（这是系统分配的），<strong>就可以实现主机与虚拟机的通信，且两者都能上网</strong>。不为192.168.138.x可以在网络连接的Edit Connections中修改，参考第⑤步，或输入<code>ifconfig ens33 192.168.138.129</code>命令暂时更改。</p>
+<p><img src="https://cdn.buct-alcp.top/20230827200725.png" alt=""></p>
+<p><img src="https://cdn.buct-alcp.top/20230827201324.png" alt=""></p>
+<h3 id="⑤-创建桥接网络">⑤ 创建桥接网络</h3>
+<p><code>在网络连接中选择Edit Connections</code>—&gt;<code> 类型选择Ethernet</code>—&gt;<code>在Ethernet选项中的Device项选择ens37</code>—&gt;<code>在IPv4 Settings里选择手动ip，Address改为192.168.199.103（注意上图的192.168.137.103是不对的），Netmask改为255.255.0.0，Gateway不填</code>—&gt;<code>save</code>—&gt;<code>打开ens37网络，此时用ifconfig命令就可以查看到该网络了</code></p>
+<p><img src="https://cdn.buct-alcp.top/20230827202032.png" alt=""></p>
+<p><img src="https://cdn.buct-alcp.top/20230828215034.png" alt=""></p>
+<h3 id="⑥-配置开发板网络">⑥ 配置开发板网络</h3>
+<p>这里要串口连接开发板（烧了镜像的），用你喜欢的串口方式操作开发板：windows下的putty软件或者linux下的minicom软件。这里以minicom（需要配置串口号，波特率，自行搜教程）为例：</p>
+<p><code>在虚拟机中打开新的终端，输入minicom命令，如果提示打不开建议重新插拔一下usb</code>—&gt;<code>输入root，以root用户登录</code>—&gt;<code>输入vi /etc/network/interfaces命令，使用vi编辑器来配置静态ip（按i进入编辑模式，按esc键退出该模式，输入:wq为保存并退出，其他命令自行百度）</code>—&gt;<code>将iface eth0 inet dhcp注释掉，并写入以下代码</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">iface eth0 inet static</span><br><span class="line">address 192.168.199.102</span><br><span class="line">netmask 255.255.0.0</span><br></pre></td></tr></table></figure>
+<p>​		<img src="https://cdn.buct-alcp.top/20230827204228.png" alt=""></p>
+<p>​		—&gt;<code>输入:wq为保存并退出，随后输入reboot命令重启单片机</code>—&gt;<code>用ifconfig命令查看有没有配置成功</code></p>
+<p><img src="https://cdn.buct-alcp.top/20230827205328.png" alt=""></p>
+<p>上述操作为永久更改，如果想暂时修改用以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ifconfig eth0 192.168.199.102</span><br><span class="line">ifconfig ens0 netmask 255.255.0.0</span><br></pre></td></tr></table></figure>
+<h3 id="⑦-验收">⑦ 验收</h3>
+<p>打开windows终端，输入<code>ipconfig</code>命令查看以太网网卡的ip（应为192.168.199.104），随后输入以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ping www.baidu.com	<span class="comment"># ping通代表主机主机能上网</span></span><br><span class="line">ping 192.168.138.129	<span class="comment"># ping通代表主机和虚拟机可以通过NAT网络通信</span></span><br><span class="line">ping 192.168.199.103	<span class="comment"># ping通代表主机和虚拟机可以通过桥接网络通信</span></span><br><span class="line">ping 192.168.199.102	<span class="comment"># ping通代表主机和开发板可以通过交换机通信</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.buct-alcp.top/20230827211456.png" alt=""></p>
+<p>打开虚拟机终端输入以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ping www.baidu.com	<span class="comment"># ping通代表虚拟机能上网</span></span><br><span class="line">ping 192.168.138.1	<span class="comment"># ping通代表虚拟机和主机可以通过NAT网络通信</span></span><br><span class="line">ping 192.168.199.104	<span class="comment"># ping通代表虚拟机和主机可以通过桥接网络通信</span></span><br><span class="line">ping 192.168.199.102	<span class="comment"># ping通代表虚拟机和开发板可以通过桥接网络+交换机通信</span></span><br></pre></td></tr></table></figure>
+<p>打开minicom输入以下命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ping 192.168.199.104	<span class="comment"># ping通代表开发板和主机可以通过交换机通信</span></span><br><span class="line">ping 192.168.199.103	<span class="comment"># ping通代表开发板和虚拟机可以通过桥接网络+交换机通信</span></span><br></pre></td></tr></table></figure>
+<h2 id="四、互联的优势">四、互联的优势</h2>
+<h2 id="4-1-用MobaXterm来代替minicom">4.1 用MobaXterm来代替minicom</h2>
+<p>由于我们配置了开发板的静态ip并实现了与主机的通信，我们可以使用MobaXterm的ssh来代替minicom与开发板交互，优点：</p>
+<ol>
+<li>不需要那根串口线了；</li>
+<li>文件目录一目了然，MobaXterm赢太多了；</li>
+<li>如果是在windows上安装了开发、调试软件可以使用远程调试功能；</li>
+<li>可以用MobaXterm实现主机与开发板之间的文件传输，比命令行方便。</li>
+</ol>
+<h2 id="4-2-用MobaXterm的ssh连接虚拟机（用NET或桥接都可以）">4.2 用MobaXterm的ssh连接虚拟机（用NET或桥接都可以）</h2>
+<p>优点：</p>
+<ol>
+<li>文件目录一目了然，习惯命令行操作的话MobaXterm用起来比虚拟机终端要顺手；</li>
+<li>方便主机和虚拟机传输文件。</li>
+</ol>
+<h2 id="4-3-虚拟机和开发板通信">4.3 虚拟机和开发板通信</h2>
+<p>优点：</p>
+<ol>
+<li>
+<p>如果是在虚拟机上安装了开发、调试软件可以使用远程调试功能；</p>
+</li>
+<li>
+<p>可以用以下命令实现文件传输：<code>scp hello_world.txt root@192.168.199.102:/home/root/test</code>；</p>
+<p>也可以用主机当中介，从而实现虚拟机和开发板间接文件传输。</p>
+</li>
+</ol>
+<h3 id="总结">总结</h3>
+<p>这种连接方式适用于开发板无需联网的环境，从Windows端和Linux端都可以对板子进行调试。</p>
+<h1>五、使用共享网络功能实现开发板联网</h1>
+<p><strong>注意：这种方法适合在windows上做开发，Linux作为可视化的运行测试端，开发板作为调试与实现最终功能的平台。</strong></p>
+<p><img src="https://cdn.buct-alcp.top/DE10-Nano%E4%B8%8A%E7%BD%91.jpg" alt=""></p>
+<h2 id="5-1-实现功能">5.1 实现功能</h2>
+<ul>
+<li>主机、虚拟机、开发板都可以上网。</li>
+<li>主机与虚拟机、主机与开发板通信正常，但是虚拟机与开发板通信时有问题：ping会出现(DUP!)。</li>
+</ul>
+<p><img src="https://cdn.buct-alcp.top/20230828210915.png" alt=""></p>
+<h2 id="5-2-实现步骤">5.2 实现步骤</h2>
+<blockquote>
+<p>参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44175418/article/details/124103801">Linux网络配置</a>，这篇文章详细说明了网络地址、路由表、连接测试、域名解析、端口检查。</p>
+</blockquote>
+<h3 id="①-共享网络">① 共享网络</h3>
+<p><code>打开windows控制面板</code>—&gt;<code>网络和internet</code>—&gt;<code>网络和共享中心</code>—&gt;<code>更改适配器设置</code>—&gt;<code>右键无线网卡选择'属性'</code>—&gt;<code>选择‘共享’，将网络共享给以太网网卡</code>—&gt;<code>确定</code>，开启共享后以太网网卡的ip会自动被改为192.168.137.1</p>
+<p><img src="https://cdn.buct-alcp.top/20230828210304.png" alt=""></p>
+<h3 id="②-修改虚拟网络ens37，修改开发板网络">② 修改虚拟网络ens37，修改开发板网络</h3>
+<ul>
+<li>虚拟机：<code>修改虚拟网络ens37如下图所示，其中Netmask显示24代表255.255.255.0</code>—&gt;<code>保存并重启网络</code></li>
+</ul>
+<p><img src="https://cdn.buct-alcp.top/20230828211417.png" alt=""></p>
+<ul>
+<li>开发板：<code>vi /etc/network/interfaces</code></li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">iface eth0 inet static</span><br><span class="line">address 192.168.137.102</span><br><span class="line">netmask 255.255.255.0</span><br><span class="line">gateway 192.168.137.1</span><br><span class="line">dns-nameservers 192.168.137.1 8.8.8.8 #这个改了貌似也没多大用</span><br></pre></td></tr></table></figure>
+<h3 id="③-路由表配置">③ 路由表配置</h3>
+<p>虚拟机&amp;开发板：</p>
+<ul>
+<li>输入<code>route</code>或<code>route -n</code>命令来查看当前路由。</li>
+<li>添加默认路由：<code>route add default gw 192.168.137.1</code></li>
+</ul>
+<h3 id="④-DNS配置">④ DNS配置</h3>
+<p>虚拟机在步骤②中已经配过了，本质上是通过配置来生成resolv.conf文件，所以直接修改resolv.conf文件也是一样的。</p>
+<p>简单粗暴：一次性修改（配完即生效）</p>
+<ul>
+<li>
+<p>修改resolv.conf文件，<code>vi /etc/resolv.conf</code>，添加<code>nameserver 192.168.137.1</code></p>
+</li>
+<li>
+<p>注意：resolv.conf文件在每次重启后会被重写，但目前开发板我还是使用这个方法，解决方法参考<a target="_blank" rel="noopener" href="https://www.cnblogs.com/lanxuezaipiao/p/3613497.html">Linux系列：Ubuntu虚拟机设置固定IP上网（配置IP、网关、DNS、防止resolv.conf被重写） - Alexia(minmin) - 博客园 (cnblogs.com)</a></p>
+</li>
+</ul>
+<h3 id="⑤-验收">⑤ 验收</h3>
+<p>略</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://ANG404me.github.io">ANG404</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://ang404me.github.io/2023/08/27/%E3%80%90SoC%20FPGA%E3%80%91%E5%AE%BF%E4%B8%BB%E6%9C%BA%E3%80%81%E8%99%9A%E6%8B%9F%E6%9C%BA%E3%80%81%E5%BC%80%E5%8F%91%E6%9D%BF%EF%BC%88de10_nano%EF%BC%89%E4%B9%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1/">https://ang404me.github.io/2023/08/27/%E3%80%90SoC%20FPGA%E3%80%91%E5%AE%BF%E4%B8%BB%E6%9C%BA%E3%80%81%E8%99%9A%E6%8B%9F%E6%9C%BA%E3%80%81%E5%BC%80%E5%8F%91%E6%9D%BF%EF%BC%88de10_nano%EF%BC%89%E4%B9%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://ANG404me.github.io" target="_blank">ANG404's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/SoC-FPGA/">SoC FPGA</a><a class="post-meta__tags" href="/tags/de10-nano/">de10_nano</a><a class="post-meta__tags" href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a><a class="post-meta__tags" href="/tags/VMware/">VMware</a><a class="post-meta__tags" href="/tags/%E7%BD%91%E7%BB%9C/">网络</a></div><div class="post_share"><div class="social-share" data-image="https://images.unsplash.com/photo-1517181875630-f72350452109?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=2670&amp;q=80" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/08/30/%E3%80%90SoC%20FPGA%E3%80%91GDB%20Server%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E3%80%81GDB%20ARM%20%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="【SoC FPGA】2.GDB Server远程调试、GDB ARM 交叉编译环境搭建"><img class="cover" src="https://plus.unsplash.com/premium_photo-1663946899728-39b7b401535e?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=1335&amp;q=80" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【SoC FPGA】2.GDB Server远程调试、GDB ARM 交叉编译环境搭建</div></div></a></div><div class="next-post pull-right"><a href="/2023/08/07/%E6%96%B9%E6%B3%95%E8%AE%BA%EF%BC%9A%E5%BF%AB%E9%80%9F%E8%B0%83%E7%A0%94%E6%B3%95%E2%80%94%E2%80%94by%E8%80%81%E8%92%8B/" title="方法论：快速调研法"><img class="cover" src="https://images.unsplash.com/photo-1434626881859-194d67b2b86f?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=1474&amp;q=80" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">方法论：快速调研法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/08/30/%E3%80%90SoC%20FPGA%E3%80%91GDB%20Server%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E3%80%81GDB%20ARM%20%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="【SoC FPGA】2.GDB Server远程调试、GDB ARM 交叉编译环境搭建"><img class="cover" src="https://plus.unsplash.com/premium_photo-1663946899728-39b7b401535e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1335&q=80" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-30</div><div class="title">【SoC FPGA】2.GDB Server远程调试、GDB ARM 交叉编译环境搭建</div></div></a></div><div><a href="/2023/09/05/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E5%BC%82%E6%9E%84%E8%AE%A1%E7%AE%97%E5%9F%BA%E7%A1%80/" title="【SoC FPGA】3.OpenCL异构计算基础"><img class="cover" src="https://images.unsplash.com/photo-1720451815682-3353b81a6633?q=80&w=3604&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-05</div><div class="title">【SoC FPGA】3.OpenCL异构计算基础</div></div></a></div><div><a href="/2023/09/12/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B/" title="【SoC FPGA】5.OpenCL程序设计流程"><img class="cover" src="https://images.unsplash.com/photo-1721340143289-94be4f77cda4?q=80&w=2832&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-12</div><div class="title">【SoC FPGA】5.OpenCL程序设计流程</div></div></a></div><div><a href="/2023/09/09/%E3%80%90SoC%20FPGA%E3%80%91%E9%9D%A2%E5%90%91Intel%20FPGA%20%E7%9A%84%20OpenCL%2018.1%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%90%AD%E5%BB%BA/" title="【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建"><img class="cover" src="https://plus.unsplash.com/premium_photo-1721405381040-10cbc42ee4a5?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-09</div><div class="title">【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建</div></div></a></div><div><a href="/2023/09/15/%E3%80%90SoC-FPGA%E3%80%91PipeCNN%E4%BB%A3%E7%A0%81%E7%B2%BE%E8%AF%BB/" title="【SoC FPGA】6.PipeCNN代码精读"><img class="cover" src="https://plus.unsplash.com/premium_photo-1721926057308-2aa7ce470776?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-15</div><div class="title">【SoC FPGA】6.PipeCNN代码精读</div></div></a></div><div><a href="/2023/11/03/%E3%80%90SoC-FPGA%E3%80%91ALINX-AXU4EVB%E5%BC%80%E5%8F%91%E6%9D%BF%E7%A7%BB%E6%A4%8DPYNQ/" title="【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ"><img class="cover" src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-03</div><div class="title">【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://thirdwx.qlogo.cn/mmopen/vi_32/DibbupDOTKvQMfAaYkjlvq4nR5Zkxd8ebYiauKfmGDGzYHbP5xhEG0FXkCoT3KaC8xe7WguiaKLA3AzNuYGe2V8ibg/132" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">ANG404</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ANG404me"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/ANG404me" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">QQ:1453897678</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">一、实现功能</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">二、准备工作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">三、实现步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E8%BF%9E%E7%BA%BF"><span class="toc-text">3.1 连线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F-NAT%E6%A8%A1%E5%BC%8F-Host-Only%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.2 桥接模式&#x2F;NAT模式&#x2F;Host-Only模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E9%85%8D%E7%BD%AE%E8%BF%87%E7%A8%8B"><span class="toc-text">3.3 配置过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A0-%E6%B7%BB%E5%8A%A0%E8%99%9A%E6%8B%9F%E7%BD%91%E7%BB%9CVMnet0"><span class="toc-text">① 添加虚拟网络VMnet0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A1-%E9%85%8D%E7%BD%AE%E4%BB%A5%E5%A4%AA%E7%BD%91%E7%BD%91%E5%8D%A1%E9%9D%99%E6%80%81ip"><span class="toc-text">② 配置以太网网卡静态ip</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A2-%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%BB%E5%8A%A0VMnet0%E7%BD%91%E5%8D%A1"><span class="toc-text">③ 虚拟机添加VMnet0网卡</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A3-%E6%A3%80%E6%9F%A5"><span class="toc-text">④ 检查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A4-%E5%88%9B%E5%BB%BA%E6%A1%A5%E6%8E%A5%E7%BD%91%E7%BB%9C"><span class="toc-text">⑤ 创建桥接网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A5-%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91%E6%9D%BF%E7%BD%91%E7%BB%9C"><span class="toc-text">⑥ 配置开发板网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A6-%E9%AA%8C%E6%94%B6"><span class="toc-text">⑦ 验收</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E4%BA%92%E8%81%94%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="toc-text">四、互联的优势</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E7%94%A8MobaXterm%E6%9D%A5%E4%BB%A3%E6%9B%BFminicom"><span class="toc-text">4.1 用MobaXterm来代替minicom</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E7%94%A8MobaXterm%E7%9A%84ssh%E8%BF%9E%E6%8E%A5%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%88%E7%94%A8NET%E6%88%96%E6%A1%A5%E6%8E%A5%E9%83%BD%E5%8F%AF%E4%BB%A5%EF%BC%89"><span class="toc-text">4.2 用MobaXterm的ssh连接虚拟机（用NET或桥接都可以）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%BC%80%E5%8F%91%E6%9D%BF%E9%80%9A%E4%BF%A1"><span class="toc-text">4.3 虚拟机和开发板通信</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">五、使用共享网络功能实现开发板联网</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E5%AE%9E%E7%8E%B0%E5%8A%9F%E8%83%BD"><span class="toc-text">5.1 实现功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="toc-text">5.2 实现步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A0-%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C"><span class="toc-text">① 共享网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A1-%E4%BF%AE%E6%94%B9%E8%99%9A%E6%8B%9F%E7%BD%91%E7%BB%9Cens37%EF%BC%8C%E4%BF%AE%E6%94%B9%E5%BC%80%E5%8F%91%E6%9D%BF%E7%BD%91%E7%BB%9C"><span class="toc-text">② 修改虚拟网络ens37，修改开发板网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A2-%E8%B7%AF%E7%94%B1%E8%A1%A8%E9%85%8D%E7%BD%AE"><span class="toc-text">③ 路由表配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A3-DNS%E9%85%8D%E7%BD%AE"><span class="toc-text">④ DNS配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%91%A4-%E9%AA%8C%E6%94%B6"><span class="toc-text">⑤ 验收</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/11/03/%E3%80%90SoC-FPGA%E3%80%91ALINX-AXU4EVB%E5%BC%80%E5%8F%91%E6%9D%BF%E7%A7%BB%E6%A4%8DPYNQ/" title="【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&amp;w=2670&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ"/></a><div class="content"><a class="title" href="/2023/11/03/%E3%80%90SoC-FPGA%E3%80%91ALINX-AXU4EVB%E5%BC%80%E5%8F%91%E6%9D%BF%E7%A7%BB%E6%A4%8DPYNQ/" title="【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ">【SoC FPGA】7.ALINX AXU4EVB开发板移植PYNQ</a><time datetime="2023-11-03T06:41:08.000Z" title="发表于 2023-11-03 14:41:08">2023-11-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/15/%E3%80%90SoC-FPGA%E3%80%91PipeCNN%E4%BB%A3%E7%A0%81%E7%B2%BE%E8%AF%BB/" title="【SoC FPGA】6.PipeCNN代码精读"><img src="https://plus.unsplash.com/premium_photo-1721926057308-2aa7ce470776?q=80&amp;w=3870&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】6.PipeCNN代码精读"/></a><div class="content"><a class="title" href="/2023/09/15/%E3%80%90SoC-FPGA%E3%80%91PipeCNN%E4%BB%A3%E7%A0%81%E7%B2%BE%E8%AF%BB/" title="【SoC FPGA】6.PipeCNN代码精读">【SoC FPGA】6.PipeCNN代码精读</a><time datetime="2023-09-15T06:41:08.000Z" title="发表于 2023-09-15 14:41:08">2023-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/12/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B/" title="【SoC FPGA】5.OpenCL程序设计流程"><img src="https://images.unsplash.com/photo-1721340143289-94be4f77cda4?q=80&amp;w=2832&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】5.OpenCL程序设计流程"/></a><div class="content"><a class="title" href="/2023/09/12/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B/" title="【SoC FPGA】5.OpenCL程序设计流程">【SoC FPGA】5.OpenCL程序设计流程</a><time datetime="2023-09-12T06:41:08.000Z" title="发表于 2023-09-12 14:41:08">2023-09-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/09/%E3%80%90SoC%20FPGA%E3%80%91%E9%9D%A2%E5%90%91Intel%20FPGA%20%E7%9A%84%20OpenCL%2018.1%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%90%AD%E5%BB%BA/" title="【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建"><img src="https://plus.unsplash.com/premium_photo-1721405381040-10cbc42ee4a5?q=80&amp;w=3870&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建"/></a><div class="content"><a class="title" href="/2023/09/09/%E3%80%90SoC%20FPGA%E3%80%91%E9%9D%A2%E5%90%91Intel%20FPGA%20%E7%9A%84%20OpenCL%2018.1%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%90%AD%E5%BB%BA/" title="【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建">【SoC FPGA】4.面向Intel FPGA 的 OpenCL 18.1运行平台搭建</a><time datetime="2023-09-09T06:41:08.000Z" title="发表于 2023-09-09 14:41:08">2023-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/05/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E5%BC%82%E6%9E%84%E8%AE%A1%E7%AE%97%E5%9F%BA%E7%A1%80/" title="【SoC FPGA】3.OpenCL异构计算基础"><img src="https://images.unsplash.com/photo-1720451815682-3353b81a6633?q=80&amp;w=3604&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SoC FPGA】3.OpenCL异构计算基础"/></a><div class="content"><a class="title" href="/2023/09/05/%E3%80%90SoC%20FPGA%E3%80%91OpenCL%E5%BC%82%E6%9E%84%E8%AE%A1%E7%AE%97%E5%9F%BA%E7%A1%80/" title="【SoC FPGA】3.OpenCL异构计算基础">【SoC FPGA】3.OpenCL异构计算基础</a><time datetime="2023-09-05T06:41:08.000Z" title="发表于 2023-09-05 14:41:08">2023-09-05</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://images.unsplash.com/photo-1517181875630-f72350452109?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=2670&amp;q=80')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By ANG404</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="algolia-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="search-wrap"><div id="algolia-search-input"></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-info"><div class="algolia-stats"></div><div class="algolia-poweredBy"></div></div></div></div></div><div id="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/algoliasearch/dist/algoliasearch-lite.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instantsearch.js/dist/instantsearch.production.min.js"></script><script src="/js/search/algolia.js"></script></div></body></html>
